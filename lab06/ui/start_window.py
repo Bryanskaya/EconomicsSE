@@ -4,6 +4,7 @@ from copy import deepcopy
 from ui.gui import Ui_Start
 from task1 import DEFAULT, runExperiment, NORMAL, INTER, BUILDIN
 
+
 class TaskWindow(QMainWindow):
     def __init__(self):
         super(TaskWindow, self).__init__()
@@ -30,7 +31,7 @@ class TaskWindow(QMainWindow):
         params['TOOL'] = float(self.ui.tool.text().replace(',', '.'))
         params['SCED'] = float(self.ui.sced.text().replace(',', '.'))
 
-        size = int(self.ui.code.text())
+        size = float(self.ui.code.text().replace(',', '.'))
         salary = int(self.ui.salary.text())
         variant = NORMAL
         if self.ui.radio_inter.isChecked():

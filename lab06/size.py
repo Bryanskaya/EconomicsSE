@@ -38,7 +38,6 @@ import math
 
 NUM_LEVELS = 5
 SIZE = 100
-xArr = ['низкий уровень', 'номинальный уровень', 'высокий уровень']
 
 # Типы проектов
 NORMAL = {'c1': 3.2, 'p1': 1.05, 'c2': 2.5, 'p2': 0.38}  # Обычный вариант - некрупный проект, нет нововведений, всё знакомо
@@ -114,12 +113,6 @@ def calculate(params: Dict[str, float], variant: Dict[str, float], size: float) 
 def process(variant: Dict[str, float], key: str, value: float, size: int):
     params = deepcopy(DEFAULT)
     params[key] = value
-
-    return calculate(params, variant, size)
-
-
-def process_2(variant: Dict[str, float], size: int):
-    params = deepcopy(DEFAULT)
 
     return calculate(params, variant, size)
 
@@ -223,62 +216,49 @@ def runExperiment(params: Dict[str, float], variant: Dict[str, float], size: flo
     return res
 
 
-def draw(laborMODP, laborTOOL, laborSCED, timeMODP, timeTOOL, timeSCED):
-    _, axs = plt.subplots(1, 2)
-    colorArr = [['green', 'black', 'blue'], ['red', 'yellow', 'purple'], ['grey', 'orange', 'fuchsia']]
+def draw(xArr, laborSIZE, timeSIZE, ind):
+    fig, axs = plt.subplots(1, 2)
+    nameArr = ['простой', 'средней сложности', 'сложный']
+    fig.canvas.manager.set_window_title(nameArr[ind])
     typeArr = ['обычный тип проекта', 'промежуточный тип проекта', 'встроенный тип проекта']
-    axs[0].set_title('Влияние MODP/TOOL/SCED на трудоёмкость (РМ)')
+    colorArr = [['green', 'black', 'blue'], ['red', 'yellow', 'purple'], ['grey', 'orange', 'fuchsia']]
+    axs[0].set_title('Влияние SIZE на трудоёмкость (РМ)')
     axs[0].set(ylabel="PM, количество человеко-месяцев")
     axs[0].grid()
 
-    axs[1].set_title("Влияние MODP/TOOL/SCED на время разработки (TМ)")
+    axs[1].set_title("Влияние SIZE на время разработки (TМ)")
     axs[1].set(ylabel="PM, количество месяцев")
     axs[1].grid()
 
-    for i in range(len(laborMODP)):
-        axs[0].plot(xArr, laborMODP[i], label='MODP ' + typeArr[i], color=colorArr[i][0])
-        axs[0].plot(xArr, laborTOOL[i], label='TOOL ' + typeArr[i], linestyle='--', color=colorArr[i][1], dashes=(2, 4))
-        axs[0].plot(xArr, laborSCED[i], label='SCED ' + typeArr[i], linestyle=':', color=colorArr[i][2])
-
-        axs[1].plot(xArr, timeMODP[i], label='MODP ' + typeArr[i], color=colorArr[i][0])
-        axs[1].plot(xArr, timeTOOL[i], label='TOOL ' + typeArr[i], linestyle='--', color=colorArr[i][1], dashes=(2, 4))
-        axs[1].plot(xArr, timeSCED[i], label='SCED ' + typeArr[i], linestyle=':', color=colorArr[i][2])
+    for i in range(3):
+        axs[0].plot(xArr, laborSIZE[i], label='SIZE ' + typeArr[i], color=colorArr[i][0])
+        axs[1].plot(xArr, timeSIZE[i], label='SIZE ' + typeArr[i], color=colorArr[i][0])
 
     axs[0].legend()
     axs[1].legend()
-    plt.show()
 
 
 def doTask1():
-    laborMODP, laborTOOL, laborSCED = [], [], []
-    timeMODP, timeTOOL, timeSCED = [], [], []
+    sizeArr = [elem for elem in range(1, 100)]
 
-    for variant in [NORMAL, INTER, BUILDIN]:
-        laborMODPArr, laborTOOLArr, laborSCEDArr = [], [], []
-        timeMODPArr, timeTOOLArr, timeSCEDArr = [], [], []
+    for i, cplx in enumerate([0.7, 1.0, 1.3]):
+        laborSIZE = []
+        timeSIZE = []
 
-        for level in range(1, NUM_LEVELS - 1):
-            laborCosts, time = process(variant, 'MODP', MODP[level], SIZE)
-            laborMODPArr.append(laborCosts)
-            timeMODPArr.append(time)
+        for variant in [NORMAL, INTER, BUILDIN]:
+            laborSIZEArr = []
+            timeSIZEArr = []
 
-            laborCosts, time = process(variant, 'TOOL', TOOL[level], SIZE)
-            laborTOOLArr.append(laborCosts)
-            timeTOOLArr.append(time)
+            for size in sizeArr:
+                laborCosts, time = process(variant, 'CPLX', cplx, size)
+                laborSIZEArr.append(laborCosts)
+                timeSIZEArr.append(time)
 
-            laborCosts, time = process(variant, 'SCED', SCED[level], SIZE)
-            laborSCEDArr.append(laborCosts)
-            timeSCEDArr.append(time)
+            laborSIZE.append(laborSIZEArr)
+            timeSIZE.append(timeSIZEArr)
 
-        laborMODP.append(laborMODPArr)
-        laborTOOL.append(laborTOOLArr)
-        laborSCED.append(laborSCEDArr)
-
-        timeMODP.append(timeMODPArr)
-        timeTOOL.append(timeTOOLArr)
-        timeSCED.append(timeSCEDArr)
-
-    draw(laborMODP, laborTOOL, laborSCED, timeMODP, timeTOOL, timeSCED)
+        draw(sizeArr, laborSIZE, timeSIZE, i)
+    plt.show()
 
 
 if __name__ == '__main__':
